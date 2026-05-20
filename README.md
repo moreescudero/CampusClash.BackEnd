@@ -88,12 +88,14 @@ dotnet run --project CampusClash.API
 La API va a estar disponible en `http://localhost:5027/swagger`
 
 ## Estructura del proyecto
+```
 CampusClash.BackEnd/
-├── CampusClash.API/            # Controllers, Program.cs
-├── CampusClash.Application/    # Servicios, DTOs, Interfaces
-├── CampusClash.Domain/         # Entidades, Enums
-├── CampusClash.Infrastructure/ # Repositorios, DbContext
-└── CampusClash.Tests/          # Tests unitarios
+├── CampusClash.API/              # Controllers, Program.cs
+├── CampusClash.Application/      # Servicios, DTOs, Interfaces
+├── CampusClash.Domain/           # Entidades, Enums
+├── CampusClash.Infrastructure/   # Repositorios, DbContext
+└── CampusClash.Tests/            # Tests unitarios
+```
 
 ## Endpoints disponibles
 
