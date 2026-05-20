@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="CampusClash.API/CampusClash.API.csproj" />
+  <Project Path="CampusClash.Application/CampusClash.Application.csproj" />
+  <Project Path="CampusClash.Domain/CampusClash.Domain.csproj" />
+  <Project Path="CampusClash.Infrastructure/CampusClash.Infrastructure.csproj" />
+  <Project Path="CampusClash.Tests/CampusClash.Tests.csproj" />
+</Solution>
