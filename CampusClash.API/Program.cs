@@ -1,5 +1,7 @@
 using CampusClash.Application.Interfaces;
 using CampusClash.Application.Services;
+using CampusClash.API.Filters;
+using CampusClash.Infrastructure;
 using CampusClash.Infrastructure.Data;
 using CampusClash.Infrastructure.Repositories;
 using CampusClash.Infrastructure.Services;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +24,12 @@ builder.Services.AddScoped<IValidationRepository, ValidationRepository>();
 // Servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddInfrastructureEmail(builder.Configuration);
 builder.Services.AddScoped<RiotLinkService>();
 builder.Services.AddHttpClient<IRiotService, RiotService>();
+
+// Filtro de admin
+builder.Services.AddScoped<AdminApiKeyFilter>();
 
 // JWT
 var jwtKey = builder.Configuration["Jwt:Key"]!;
@@ -42,7 +49,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+        opts.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.CamelCase)));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

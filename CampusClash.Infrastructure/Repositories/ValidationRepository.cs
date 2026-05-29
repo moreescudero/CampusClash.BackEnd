@@ -19,6 +19,11 @@ public class ValidationRepository : IValidationRepository
             .Include(v => v.University)
             .FirstOrDefaultAsync(v => v.UserId == userId);
 
+    public async Task<ValidationRequest?> GetByUserEmailAsync(string email)
+        => await _context.ValidationRequests
+            .Include(v => v.University)
+            .FirstOrDefaultAsync(v => v.UserEmail == email);
+
     public async Task AddAsync(ValidationRequest request)
         => await _context.ValidationRequests.AddAsync(request);
 
