@@ -19,11 +19,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IValidationRepository, ValidationRepository>(); 
+builder.Services.AddScoped<IValidationRepository, ValidationRepository>();
+builder.Services.AddScoped<IOrganizerRequestRepository, OrganizerRequestRepository>();
+builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 
 // Servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddScoped<IOrganizerRequestService, OrganizerRequestService>();
+builder.Services.AddScoped<ITournamentService, TournamentService>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddInfrastructureEmail(builder.Configuration);
 builder.Services.AddScoped<RiotLinkService>();
 builder.Services.AddHttpClient<IRiotService, RiotService>();

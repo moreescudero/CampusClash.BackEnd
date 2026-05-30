@@ -10,6 +10,7 @@ public class User
     public string? RiotGameName { get; set; }
     public string? RiotTagLine { get; set; }
     public bool IsRiotLinked { get; set; }
+    public bool IsOrganizer { get; set; }
     public DateTime CreatedAt { get; set; }
 
     public ValidationRequest? ValidationRequest { get; set; }

@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<University> Universities { get; set; }
     public DbSet<ValidationRequest> ValidationRequests { get; set; }
+    public DbSet<OrganizerRequest> OrganizerRequests { get; set; }
     public DbSet<Tournament> Tournaments { get; set; }
     public DbSet<Team> Teams { get; set; }
     public DbSet<Enrollment> Enrollments { get; set; }
@@ -45,14 +46,34 @@ public class AppDbContext : DbContext
                   .HasForeignKey(v => v.UniversityId);
         });
 
+        modelBuilder.Entity<OrganizerRequest>(entity =>
+        {
+            entity.HasKey(o => o.Id);
+            entity.Property(o => o.Game).IsRequired().HasConversion<string>();
+            entity.HasOne(o => o.User)
+                  .WithMany()
+                  .HasForeignKey(o => o.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(o => o.University)
+                  .WithMany()
+                  .HasForeignKey(o => o.UniversityId)
+                  .IsRequired(false)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<Tournament>(entity =>
         {
             entity.HasKey(t => t.Id);
             entity.Property(t => t.Name).IsRequired().HasMaxLength(255);
-            entity.Property(t => t.Game).IsRequired().HasMaxLength(100);
+            entity.Property(t => t.Game).IsRequired().HasConversion<string>();
             entity.HasOne(t => t.CreatedBy)
                   .WithMany()
                   .HasForeignKey(t => t.CreatedByUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(t => t.University)
+                  .WithMany()
+                  .HasForeignKey(t => t.UniversityId)
+                  .IsRequired(false)
                   .OnDelete(DeleteBehavior.Restrict);
         });
 

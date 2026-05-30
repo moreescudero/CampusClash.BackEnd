@@ -103,4 +103,27 @@ public class ValidationService : IValidationService
             ReviewedAt = validation.ReviewedAt
         };
     }
+
+    public async Task<ValidationResponseDto> RejectValidationAsync(string email)
+    {
+        var validation = await _validationRepository.GetByUserEmailAsync(email);
+        if (validation is null)
+            throw new Exception("No se encontró solicitud de validación para ese email.");
+
+        if (validation.Status != ValidationStatus.Pending)
+            throw new Exception("La solicitud no está en estado pendiente.");
+
+        validation.Status = ValidationStatus.Rejected;
+        validation.ReviewedAt = DateTime.UtcNow;
+        await _validationRepository.SaveChangesAsync();
+
+        return new ValidationResponseDto
+        {
+            Id = validation.Id,
+            UniversityName = validation.University?.Name ?? string.Empty,
+            Status = validation.Status,
+            CreatedAt = validation.CreatedAt,
+            ReviewedAt = validation.ReviewedAt
+        };
+    }
 }

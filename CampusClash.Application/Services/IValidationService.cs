@@ -7,4 +7,5 @@ public interface IValidationService
     Task<ValidationResponseDto> RequestValidationAsync(Guid userId, ValidationRequestDto request);
     Task<ValidationResponseDto> GetValidationStatusAsync(Guid userId);
     Task<ValidationResponseDto> ApproveValidationAsync(string email);
+    Task<ValidationResponseDto> RejectValidationAsync(string email);
 }

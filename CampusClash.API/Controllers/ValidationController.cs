@@ -94,4 +94,20 @@ public class ValidationController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpPost("reject/{email}")]
+    [AdminApiKey]
+    [AllowAnonymous]
+    public async Task<IActionResult> RejectValidation(string email)
+    {
+        try
+        {
+            var response = await _validationService.RejectValidationAsync(email);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

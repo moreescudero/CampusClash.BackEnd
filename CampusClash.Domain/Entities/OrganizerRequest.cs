@@ -2,22 +2,22 @@ using CampusClash.Domain.Enums;
 
 namespace CampusClash.Domain.Entities;
 
-public class Tournament
+public class OrganizerRequest
 {
     public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
+    public string UserEmail { get; set; } = string.Empty;
+    public string TournamentName { get; set; } = string.Empty;
+    public DateTime StartDate { get; set; }
     public Game Game { get; set; }
     public string Description { get; set; } = string.Empty;
     public bool IsInterUniversity { get; set; }
     public Guid? UniversityId { get; set; }
     public int MaxTeams { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime? EnrollmentDeadline { get; set; }
-    public TournamentStatus Status { get; set; }
-    public Guid CreatedByUserId { get; set; }
+    public OrganizerRequestStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? ReviewedAt { get; set; }
 
-    public User CreatedBy { get; set; } = null!;
+    public User User { get; set; } = null!;
     public University? University { get; set; }
-    public ICollection<Team> Teams { get; set; } = new List<Team>();
 }
