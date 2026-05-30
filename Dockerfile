@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-COPY *.sln .
+COPY *.slnx .
 COPY CampusClash.API/*.csproj ./CampusClash.API/
 COPY CampusClash.Application/*.csproj ./CampusClash.Application/
 COPY CampusClash.Domain/*.csproj ./CampusClash.Domain/
