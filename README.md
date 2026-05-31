@@ -53,6 +53,8 @@ Editá `appsettings.json` con tus valores:
 }
 ```
 
+Para obtener tu ```Development Api Key``` entra al siguiente link: https://developer.riotgames.com/
+
 ### 3. Crear la base de datos
 
 Asegurate de tener PostgreSQL corriendo y creá la base de datos:
