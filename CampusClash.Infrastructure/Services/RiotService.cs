@@ -18,20 +18,23 @@ public class RiotService : IRiotService
 
     public async Task<RiotAccountDto?> GetAccountByRiotIdAsync(string gameName, string tagLine)
     {
-        var url = $"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}?api_key={_apiKey}";
+        var encodedName = Uri.EscapeDataString(gameName);
+        var encodedTag  = Uri.EscapeDataString(tagLine);
+        var url = $"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{encodedName}/{encodedTag}?api_key={_apiKey}";
 
         var response = await _httpClient.GetAsync(url);
 
         if (!response.IsSuccessStatusCode)
-            return null;
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Riot API respondió {(int)response.StatusCode}: {body}");
+        }
 
         var content = await response.Content.ReadAsStringAsync();
 
-        var account = JsonSerializer.Deserialize<RiotAccountDto>(content, new JsonSerializerOptions
+        return JsonSerializer.Deserialize<RiotAccountDto>(content, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });
-
-        return account;
     }
 }
