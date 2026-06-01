@@ -13,17 +13,9 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Base de datos — en Railway usa DATABASE_URL, localmente usa ConnectionStrings:DefaultConnection
-var connectionString =
-    Environment.GetEnvironmentVariable("DATABASE_URL")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Railway usa postgres:// pero Npgsql requiere postgresql://
-if (connectionString?.StartsWith("postgres://") == true)
-    connectionString = "postgresql://" + connectionString["postgres://".Length..];
-
+// Base de datos
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
