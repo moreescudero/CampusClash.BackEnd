@@ -52,4 +52,14 @@ public class AuthController : ControllerBase
 
         return Ok(new { message = "Email confirmado correctamente." });
     }
+
+    [HttpGet("debug-riot-key")]
+    public IActionResult DebugRiotKey([FromServices] IConfiguration config)
+    {
+        var key = config["RiotGames:ApiKey"];
+        return Ok(new { 
+            keyLength = key?.Length ?? 0,
+            keyStart = key?.Substring(0, Math.Min(10, key?.Length ?? 0)) ?? "EMPTY"
+        });
+    }
 }
