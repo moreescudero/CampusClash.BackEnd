@@ -83,8 +83,8 @@ namespace CampusClash.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("UniversityId")
-                        .HasColumnType("uuid");
+                    b.Property<int?>("UniversityId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserEmail")
                         .IsRequired()
@@ -119,8 +119,8 @@ namespace CampusClash.Infrastructure.Migrations
                     b.Property<Guid>("TournamentId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UniversityId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("UniversityId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -171,8 +171,8 @@ namespace CampusClash.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("UniversityId")
-                        .HasColumnType("uuid");
+                    b.Property<int?>("UniversityId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -185,9 +185,11 @@ namespace CampusClash.Infrastructure.Migrations
 
             modelBuilder.Entity("CampusClash.Domain.Entities.University", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -202,6 +204,98 @@ namespace CampusClash.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Universities");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Universidad de Buenos Aires",
+                            ShortName = "UBA"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Universidad Nacional de Córdoba",
+                            ShortName = "UNC"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Universidad Nacional de La Plata",
+                            ShortName = "UNLP"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Universidad Tecnológica Nacional",
+                            ShortName = "UTN"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Universidad Nacional de Rosario",
+                            ShortName = "UNR"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Universidad Nacional de Mar del Plata",
+                            ShortName = "UNMDP"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Universidad Nacional de Tucumán",
+                            ShortName = "UNT"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Universidad Nacional de La Matanza",
+                            ShortName = "UNLaM"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "Universidad Nacional de Quilmes",
+                            ShortName = "UNQ"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "Universidad Argentina de la Empresa",
+                            ShortName = "UADE"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "Universidad Abierta Interamericana",
+                            ShortName = "UAI"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "Universidad Austral",
+                            ShortName = "AUSTRAL"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "Universidad del Salvador",
+                            ShortName = "USAL"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "Universidad de Palermo",
+                            ShortName = "UP"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "Universidad Siglo 21",
+                            ShortName = "SIGLO21"
+                        });
                 });
 
             modelBuilder.Entity("CampusClash.Domain.Entities.User", b =>
@@ -281,8 +375,8 @@ namespace CampusClash.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("UniversityId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("UniversityId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserEmail")
                         .IsRequired()

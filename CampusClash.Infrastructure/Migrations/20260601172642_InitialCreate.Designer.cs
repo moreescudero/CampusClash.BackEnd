@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CampusClash.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260520032847_InitialCreate")]
+    [Migration("20260601172642_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -50,6 +50,61 @@ namespace CampusClash.Infrastructure.Migrations
                     b.ToTable("Enrollments");
                 });
 
+            modelBuilder.Entity("CampusClash.Domain.Entities.OrganizerRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Game")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsInterUniversity")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaxTeams")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TournamentName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("UniversityId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UniversityId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OrganizerRequests");
+                });
+
             modelBuilder.Entity("CampusClash.Domain.Entities.Team", b =>
                 {
                     b.Property<Guid>("Id")
@@ -67,8 +122,8 @@ namespace CampusClash.Infrastructure.Migrations
                     b.Property<Guid>("TournamentId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UniversityId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("UniversityId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -91,13 +146,19 @@ namespace CampusClash.Infrastructure.Migrations
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("EnrollmentDeadline")
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EnrollmentDeadline")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Game")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsInterUniversity")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("MaxTeams")
                         .HasColumnType("integer");
@@ -113,18 +174,25 @@ namespace CampusClash.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("UniversityId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("UniversityId");
 
                     b.ToTable("Tournaments");
                 });
 
             modelBuilder.Entity("CampusClash.Domain.Entities.University", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -139,6 +207,98 @@ namespace CampusClash.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Universities");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Universidad de Buenos Aires",
+                            ShortName = "UBA"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Universidad Nacional de Córdoba",
+                            ShortName = "UNC"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Universidad Nacional de La Plata",
+                            ShortName = "UNLP"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Universidad Tecnológica Nacional",
+                            ShortName = "UTN"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Universidad Nacional de Rosario",
+                            ShortName = "UNR"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Universidad Nacional de Mar del Plata",
+                            ShortName = "UNMDP"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Universidad Nacional de Tucumán",
+                            ShortName = "UNT"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Universidad Nacional de La Matanza",
+                            ShortName = "UNLaM"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "Universidad Nacional de Quilmes",
+                            ShortName = "UNQ"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "Universidad Argentina de la Empresa",
+                            ShortName = "UADE"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "Universidad Abierta Interamericana",
+                            ShortName = "UAI"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "Universidad Austral",
+                            ShortName = "AUSTRAL"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "Universidad del Salvador",
+                            ShortName = "USAL"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "Universidad de Palermo",
+                            ShortName = "UP"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "Universidad Siglo 21",
+                            ShortName = "SIGLO21"
+                        });
                 });
 
             modelBuilder.Entity("CampusClash.Domain.Entities.User", b =>
@@ -156,6 +316,9 @@ namespace CampusClash.Infrastructure.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<bool>("IsEmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsOrganizer")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsRiotLinked")
@@ -190,6 +353,10 @@ namespace CampusClash.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Career")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("CertificateUrl")
                         .IsRequired()
                         .HasColumnType("text");
@@ -197,17 +364,32 @@ namespace CampusClash.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Faculty")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Legajo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("ReviewedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("UniversityId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("UniversityId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -234,6 +416,24 @@ namespace CampusClash.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Team");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CampusClash.Domain.Entities.OrganizerRequest", b =>
+                {
+                    b.HasOne("CampusClash.Domain.Entities.University", "University")
+                        .WithMany()
+                        .HasForeignKey("UniversityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CampusClash.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("University");
 
                     b.Navigation("User");
                 });
@@ -265,7 +465,14 @@ namespace CampusClash.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CampusClash.Domain.Entities.University", "University")
+                        .WithMany()
+                        .HasForeignKey("UniversityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("University");
                 });
 
             modelBuilder.Entity("CampusClash.Domain.Entities.ValidationRequest", b =>

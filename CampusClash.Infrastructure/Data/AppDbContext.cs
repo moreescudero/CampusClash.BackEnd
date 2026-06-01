@@ -33,6 +33,24 @@ public class AppDbContext : DbContext
             entity.HasKey(u => u.Id);
             entity.Property(u => u.Name).IsRequired().HasMaxLength(255);
             entity.Property(u => u.ShortName).IsRequired().HasMaxLength(20);
+
+            entity.HasData(
+                new University { Id = 1,  Name = "Universidad de Buenos Aires",        ShortName = "UBA"     },
+                new University { Id = 2,  Name = "Universidad Nacional de Córdoba",    ShortName = "UNC"     },
+                new University { Id = 3,  Name = "Universidad Nacional de La Plata",   ShortName = "UNLP"    },
+                new University { Id = 4,  Name = "Universidad Tecnológica Nacional",   ShortName = "UTN"     },
+                new University { Id = 5,  Name = "Universidad Nacional de Rosario",    ShortName = "UNR"     },
+                new University { Id = 6,  Name = "Universidad Nacional de Mar del Plata", ShortName = "UNMDP" },
+                new University { Id = 7,  Name = "Universidad Nacional de Tucumán",    ShortName = "UNT"     },
+                new University { Id = 8,  Name = "Universidad Nacional de La Matanza", ShortName = "UNLaM"   },
+                new University { Id = 9,  Name = "Universidad Nacional de Quilmes",    ShortName = "UNQ"     },
+                new University { Id = 10, Name = "Universidad Argentina de la Empresa",ShortName = "UADE"    },
+                new University { Id = 11, Name = "Universidad Abierta Interamericana", ShortName = "UAI"     },
+                new University { Id = 12, Name = "Universidad Austral",                ShortName = "AUSTRAL" },
+                new University { Id = 13, Name = "Universidad del Salvador",           ShortName = "USAL"    },
+                new University { Id = 14, Name = "Universidad de Palermo",             ShortName = "UP"      },
+                new University { Id = 15, Name = "Universidad Siglo 21",               ShortName = "SIGLO21" }
+            );
         });
 
         modelBuilder.Entity<ValidationRequest>(entity =>

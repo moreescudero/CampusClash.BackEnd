@@ -9,7 +9,7 @@ public class Tournament
     public Game Game { get; set; }
     public string Description { get; set; } = string.Empty;
     public bool IsInterUniversity { get; set; }
-    public Guid? UniversityId { get; set; }
+    public int? UniversityId { get; set; }
     public int MaxTeams { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? EnrollmentDeadline { get; set; }

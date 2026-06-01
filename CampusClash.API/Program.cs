@@ -19,6 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
 builder.Services.AddScoped<IValidationRepository, ValidationRepository>();
 builder.Services.AddScoped<IOrganizerRequestRepository, OrganizerRequestRepository>();
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();

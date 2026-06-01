@@ -24,7 +24,7 @@ public class ValidationController : ControllerBase
     [HttpPost("request")]
     public async Task<IActionResult> RequestValidation(
         [FromForm] string legajo,
-        [FromForm] Guid university,
+        [FromForm] int university,
         [FromForm] string faculty,
         [FromForm] string career,
         [FromForm] int year,

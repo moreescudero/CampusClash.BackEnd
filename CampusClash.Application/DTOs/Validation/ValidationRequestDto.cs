@@ -3,7 +3,7 @@ namespace CampusClash.Application.DTOs.Validation;
 public class ValidationRequestDto
 {
     public string Legajo { get; set; } = string.Empty;
-    public Guid University { get; set; }
+    public int University { get; set; }
     public string Faculty { get; set; } = string.Empty;
     public string Career { get; set; } = string.Empty;
     public int Year { get; set; }

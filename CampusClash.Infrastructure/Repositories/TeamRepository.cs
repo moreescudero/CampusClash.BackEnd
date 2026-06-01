@@ -15,7 +15,7 @@ public class TeamRepository : ITeamRepository
         _context = context;
     }
 
-    public async Task<Team?> GetNonFullByTournamentAndUniversityAsync(Guid tournamentId, Guid universityId)
+    public async Task<Team?> GetNonFullByTournamentAndUniversityAsync(Guid tournamentId, int universityId)
         => await _context.Teams
             .Include(t => t.Enrollments)
             .Include(t => t.University)
@@ -27,7 +27,7 @@ public class TeamRepository : ITeamRepository
     public async Task<int> GetCountByTournamentAsync(Guid tournamentId)
         => await _context.Teams.CountAsync(t => t.TournamentId == tournamentId);
 
-    public async Task<int> GetCountByTournamentAndUniversityAsync(Guid tournamentId, Guid universityId)
+    public async Task<int> GetCountByTournamentAndUniversityAsync(Guid tournamentId, int universityId)
         => await _context.Teams.CountAsync(t =>
             t.TournamentId == tournamentId &&
             t.UniversityId == universityId);

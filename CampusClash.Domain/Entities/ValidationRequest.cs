@@ -6,7 +6,7 @@ public class ValidationRequest
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public Guid UniversityId { get; set; }
+    public int UniversityId { get; set; }
     public string Legajo { get; set; } = string.Empty;
     public string Faculty { get; set; } = string.Empty;
     public string Career { get; set; } = string.Empty;
