@@ -18,11 +18,17 @@ public class RiotService : IRiotService
 
     public async Task<RiotAccountDto?> GetAccountByRiotIdAsync(string gameName, string tagLine)
     {
+        // El Account v1 requiere producto RSO habilitado; usamos el Summoner v4 de LoL
+        // que funciona con dev keys estándar
         var encodedName = Uri.EscapeDataString(gameName);
-        var encodedTag  = Uri.EscapeDataString(tagLine);
-        var url = $"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{encodedName}/{encodedTag}?api_key={_apiKey}";
+        var baseUrl = _httpClient.BaseAddress?.ToString().TrimEnd('/')
+                      ?? "https://la1.api.riotgames.com";
+        var url = $"{baseUrl}/lol/summoner/v4/summoners/by-name/{encodedName}?api_key={_apiKey}";
 
         var response = await _httpClient.GetAsync(url);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            return null;
 
         if (!response.IsSuccessStatusCode)
         {
@@ -31,10 +37,24 @@ public class RiotService : IRiotService
         }
 
         var content = await response.Content.ReadAsStringAsync();
-
-        return JsonSerializer.Deserialize<RiotAccountDto>(content, new JsonSerializerOptions
+        var summoner = JsonSerializer.Deserialize<SummonerDto>(content, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });
+
+        if (summoner is null) return null;
+
+        return new RiotAccountDto
+        {
+            Puuid    = summoner.Puuid,
+            GameName = gameName,
+            TagLine  = tagLine
+        };
+    }
+
+    private sealed class SummonerDto
+    {
+        public string Puuid { get; set; } = string.Empty;
+        public string Name  { get; set; } = string.Empty;
     }
 }
