@@ -18,6 +18,10 @@ var connectionString =
     Environment.GetEnvironmentVariable("DATABASE_URL")
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
+// Railway usa postgres:// pero Npgsql requiere postgresql://
+if (connectionString?.StartsWith("postgres://") == true)
+    connectionString = "postgresql://" + connectionString["postgres://".Length..];
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -83,15 +87,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<AppDbContext>>();
-    try
-    {
-        db.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Error al aplicar migraciones. La app continúa iniciando.");
-    }
+    db.Database.Migrate();
 }
 
 app.UseCors("AllowFrontend");
