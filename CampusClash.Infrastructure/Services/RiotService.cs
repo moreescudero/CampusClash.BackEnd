@@ -10,6 +10,11 @@ public class RiotService : IRiotService
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
 
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public RiotService(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
@@ -18,14 +23,14 @@ public class RiotService : IRiotService
 
     public async Task<RiotAccountDto?> GetAccountByRiotIdAsync(string gameName, string tagLine)
     {
-        // El Account v1 requiere producto RSO habilitado; usamos el Summoner v4 de LoL
-        // que funciona con dev keys estándar
         var encodedName = Uri.EscapeDataString(gameName);
-        var baseUrl = _httpClient.BaseAddress?.ToString().TrimEnd('/')
-                      ?? "https://la1.api.riotgames.com";
-        var url = $"{baseUrl}/lol/summoner/v4/summoners/by-name/{encodedName}?api_key={_apiKey}";
+        var encodedTag  = Uri.EscapeDataString(tagLine);
+        var url = $"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{encodedName}/{encodedTag}";
 
-        var response = await _httpClient.GetAsync(url);
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Add("X-Riot-Token", _apiKey);
+
+        var response = await _httpClient.SendAsync(request);
 
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             return null;
@@ -37,24 +42,6 @@ public class RiotService : IRiotService
         }
 
         var content = await response.Content.ReadAsStringAsync();
-        var summoner = JsonSerializer.Deserialize<SummonerDto>(content, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
-
-        if (summoner is null) return null;
-
-        return new RiotAccountDto
-        {
-            Puuid    = summoner.Puuid,
-            GameName = gameName,
-            TagLine  = tagLine
-        };
-    }
-
-    private sealed class SummonerDto
-    {
-        public string Puuid { get; set; } = string.Empty;
-        public string Name  { get; set; } = string.Empty;
+        return JsonSerializer.Deserialize<RiotAccountDto>(content, JsonOptions);
     }
 }
