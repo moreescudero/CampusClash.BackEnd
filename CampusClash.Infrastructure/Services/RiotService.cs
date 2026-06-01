@@ -19,6 +19,7 @@ public class RiotService : IRiotService
     {
         _httpClient = httpClient;
         _apiKey = configuration["RiotGames:ApiKey"]!;
+        Console.WriteLine($"RiotService - API Key cargada: {_apiKey?.Substring(0, 10)}...");
     }
 
     public async Task<RiotAccountDto?> GetAccountByRiotIdAsync(string gameName, string tagLine)
