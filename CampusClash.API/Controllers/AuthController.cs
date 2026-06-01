@@ -53,13 +53,18 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Email confirmado correctamente." });
     }
 
-    [HttpGet("debug-riot-key")]
-    public IActionResult DebugRiotKey([FromServices] IConfiguration config)
+    [HttpGet("debug-riot")]
+    public async Task<IActionResult> DebugRiot([FromServices] IConfiguration config, [FromServices] IRiotService riotService)
     {
-        var key = config["RiotGames:ApiKey"];
-        return Ok(new { 
-            keyLength = key?.Length ?? 0,
-            keyStart = key?.Substring(0, Math.Min(10, key?.Length ?? 0)) ?? "EMPTY"
-        });
+        try
+        {
+            var key = config["RiotGames:ApiKey"];
+            var result = await riotService.GetAccountByRiotIdAsync("morna", "707");
+            return Ok(new { key = key?.Substring(0, 10), result });
+        }
+        catch (Exception ex)
+        {
+            return Ok(new { error = ex.Message });
+        }
     }
 }
