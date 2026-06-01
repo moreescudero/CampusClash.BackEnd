@@ -13,9 +13,13 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Base de datos
+// Base de datos — en Railway usa DATABASE_URL, localmente usa ConnectionStrings:DefaultConnection
+var connectionString =
+    Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // Repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
