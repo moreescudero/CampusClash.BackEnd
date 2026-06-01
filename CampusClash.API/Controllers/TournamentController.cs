@@ -22,17 +22,31 @@ public class TournamentController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var response = await _service.GetAllAsync();
-        return Ok(response);
+        try
+        {
+            var response = await _service.GetAllAsync();
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
     }
 
     [HttpGet("my")]
     [Authorize]
     public async Task<IActionResult> GetMy()
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var response = await _service.GetMyTournamentsAsync(userId);
-        return Ok(response);
+        try
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _service.GetMyTournamentsAsync(userId);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
     }
 
     [HttpGet("{id:guid}")]
