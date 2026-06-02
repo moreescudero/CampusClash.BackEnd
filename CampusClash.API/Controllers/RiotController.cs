@@ -19,11 +19,24 @@ public class RiotController : ControllerBase
     }
 
     [HttpPost("link")]
-    public async Task<IActionResult> LinkRiotAccount([FromBody] LinkRiotRequestDto request)
+    public async Task<IActionResult> LinkRiotAccount([FromBody] JsonElement body)
     {
         try
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            
+            var summonerName = body.GetProperty("summonerName").GetString()!;
+            var parts = summonerName.Split('#');
+            
+            if (parts.Length != 2)
+                return BadRequest(new { message = "Formato inválido. Usá NombreDeJuego#Tag" });
+
+            var request = new LinkRiotRequestDto
+            {
+                GameName = parts[0],
+                TagLine = parts[1]
+            };
+
             var result = await _riotLinkService.LinkRiotAccountAsync(userId, request);
             return Ok(new { message = "Cuenta de Riot vinculada correctamente." });
         }
@@ -31,15 +44,5 @@ public class RiotController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
-    }
-
-    [HttpGet("debug-riot-key")]
-    public IActionResult DebugRiotKey([FromServices] IConfiguration config)
-    {
-        var key = config["RiotGames:ApiKey"];
-        return Ok(new { 
-            keyLength = key?.Length ?? 0,
-            keyStart = key?.Substring(0, Math.Min(10, key?.Length ?? 0)) ?? "EMPTY"
-        });
     }
 }
