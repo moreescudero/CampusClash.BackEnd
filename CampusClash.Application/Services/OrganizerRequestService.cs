@@ -26,6 +26,8 @@ public class OrganizerRequestService : IOrganizerRequestService
 
     public async Task<OrganizerRequestResponseDto> SubmitAsync(Guid userId, OrganizerRequestDto dto)
     {
+        dto.StartDate = DateTime.SpecifyKind(dto.StartDate, DateTimeKind.Utc);
+
         var user = await _userRepository.GetByIdAsync(userId);
         if (user is null)
             throw new Exception("Usuario no encontrado.");
