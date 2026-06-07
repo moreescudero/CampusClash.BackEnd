@@ -18,6 +18,7 @@ public class OrganizerRequestController : ControllerBase
         _service = service;
     }
 
+/*
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Submit([FromBody] OrganizerRequestDto dto)
@@ -33,7 +34,28 @@ public class OrganizerRequestController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+*/
 
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Submit([FromBody] OrganizerRequestDto dto)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _service.SubmitAsync(userId, dto);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message,
+                inner = ex.InnerException?.Message
+            });
+        }
+    }
+    
     [HttpPost("approve/{email}")]
     [AdminApiKey]
     [AllowAnonymous]

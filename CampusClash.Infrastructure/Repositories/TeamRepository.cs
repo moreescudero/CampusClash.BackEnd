@@ -32,6 +32,9 @@ public class TeamRepository : ITeamRepository
             t.TournamentId == tournamentId &&
             t.UniversityId == universityId);
 
+    public void Remove(Team team)
+        => _context.Teams.Remove(team);
+
     public async Task AddAsync(Team team)
         => await _context.Teams.AddAsync(team);
 

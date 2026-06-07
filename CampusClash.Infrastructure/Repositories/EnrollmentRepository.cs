@@ -23,6 +23,17 @@ public class EnrollmentRepository : IEnrollmentRepository
                 (e.Team.Tournament.Status == TournamentStatus.Open ||
                  e.Team.Tournament.Status == TournamentStatus.InProgress));
 
+    public async Task<Enrollment?> GetByUserAndTournamentAsync(Guid userId, Guid tournamentId)
+        => await _context.Enrollments
+            .Include(e => e.Team)
+            .ThenInclude(t => t.Enrollments)
+            .FirstOrDefaultAsync(e =>
+                e.UserId == userId &&
+                e.Team.TournamentId == tournamentId);
+
+    public void Remove(Enrollment enrollment)
+        => _context.Enrollments.Remove(enrollment);
+
     public async Task AddAsync(Enrollment enrollment)
         => await _context.Enrollments.AddAsync(enrollment);
 
