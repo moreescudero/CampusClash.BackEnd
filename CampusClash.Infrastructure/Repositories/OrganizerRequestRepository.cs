@@ -14,6 +14,7 @@ public class OrganizerRequestRepository : IOrganizerRequestRepository
         _context = context;
     }
 
+/*
     public async Task<OrganizerRequest?> GetByUserIdAsync(Guid userId)
         => await _context.OrganizerRequests
             .Include(o => o.University)
@@ -23,6 +24,22 @@ public class OrganizerRequestRepository : IOrganizerRequestRepository
         => await _context.OrganizerRequests
             .Include(o => o.University)
             .FirstOrDefaultAsync(o => o.UserEmail == email);
+
+*/
+    // Modificado para traer la solicitud más reciente en caso de que haya varias
+    public async Task<OrganizerRequest?> GetByUserIdAsync(Guid userId) 
+        => await _context.OrganizerRequests
+            .Include(o => o.University)
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.CreatedAt)
+            .FirstOrDefaultAsync();
+
+    public async Task<OrganizerRequest?> GetByUserEmailAsync(string email)
+        => await _context.OrganizerRequests
+            .Include(o => o.University)
+            .Where(o => o.UserEmail == email)
+            .OrderByDescending(o => o.CreatedAt)
+            .FirstOrDefaultAsync();
 
     public async Task AddAsync(OrganizerRequest request)
         => await _context.OrganizerRequests.AddAsync(request);
