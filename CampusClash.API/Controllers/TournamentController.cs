@@ -94,4 +94,23 @@ public class TournamentController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpDelete("{id:guid}/enroll")]
+    [Authorize]
+    public async Task<IActionResult> Leave(Guid id)
+    {
+        try
+        {
+            var userId = Guid.Parse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            await _enrollmentService.LeaveAsync(userId, id);
+
+            return Ok(new { message = "Inscripción cancelada." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

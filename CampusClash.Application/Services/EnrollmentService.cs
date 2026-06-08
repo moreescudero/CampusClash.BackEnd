@@ -93,4 +93,29 @@ public class EnrollmentService : IEnrollmentService
             IsFull = currentPlayers >= TeamSize
         };
     }
+
+    public async Task LeaveAsync(Guid userId, Guid tournamentId)
+    {
+        var enrollment = await _enrollmentRepository
+            .GetByUserAndTournamentAsync(userId, tournamentId);
+
+        if (enrollment is null)
+            throw new Exception("No estás inscripto en este torneo.");
+
+        var team = enrollment.Team;
+
+        if (team is null)
+            throw new Exception("Equipo no encontrado.");
+
+        var memberCount = team.Enrollments.Count;
+
+        _enrollmentRepository.Remove(enrollment);
+
+        if (memberCount == 1)
+        {
+            _teamRepository.Remove(team);
+        }
+
+        await _enrollmentRepository.SaveChangesAsync();
+    }
 }
