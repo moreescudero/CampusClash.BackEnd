@@ -1,3 +1,4 @@
+using CampusClash.API;
 using CampusClash.Application.Interfaces;
 using CampusClash.Application.Services;
 using CampusClash.API.Filters;
@@ -80,6 +81,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+    DataSeeder.Seed(db);
 }
 
 app.UseCors("AllowFrontend");
