@@ -8,12 +8,12 @@ public static class DataSeeder
 {
     public static void Seed(AppDbContext context)
     {
-        if (context.Users.Any()) return;
+        var organizerId   = Guid.Parse("a1a1a1a1-0000-0000-0000-000000000001");
+        if (context.Users.Any(u => u.Id == organizerId)) return;
 
         var hash = BCrypt.Net.BCrypt.HashPassword("Campus123!");
 
         // ── IDs fijos ──────────────────────────────────────────────────────────
-        var organizerId   = Guid.Parse("a1a1a1a1-0000-0000-0000-000000000001");
         var player1Id     = Guid.Parse("b1b1b1b1-0000-0000-0000-000000000001"); // UBA
         var player2Id     = Guid.Parse("b2b2b2b2-0000-0000-0000-000000000002"); // UBA
         var player3Id     = Guid.Parse("c3c3c3c3-0000-0000-0000-000000000003"); // UADE
