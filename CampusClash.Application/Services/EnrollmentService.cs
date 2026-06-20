@@ -14,19 +14,22 @@ public class EnrollmentService : IEnrollmentService
     private readonly ITournamentRepository _tournamentRepository;
     private readonly ITeamRepository _teamRepository;
     private readonly IEnrollmentRepository _enrollmentRepository;
+    private readonly IBracketService _bracketService;
 
     public EnrollmentService(
         IUserRepository userRepository,
         IValidationRepository validationRepository,
         ITournamentRepository tournamentRepository,
         ITeamRepository teamRepository,
-        IEnrollmentRepository enrollmentRepository)
+        IEnrollmentRepository enrollmentRepository,
+        IBracketService bracketService)
     {
         _userRepository = userRepository;
         _validationRepository = validationRepository;
         _tournamentRepository = tournamentRepository;
         _teamRepository = teamRepository;
         _enrollmentRepository = enrollmentRepository;
+        _bracketService = bracketService;
     }
 
     public async Task<EnrollResponseDto> EnrollAsync(Guid userId, Guid tournamentId)
@@ -83,6 +86,18 @@ public class EnrollmentService : IEnrollmentService
         await _enrollmentRepository.SaveChangesAsync();
 
         var currentPlayers = team.Enrollments.Count + 1;
+
+        // Si este jugador completó el equipo, verificar si el torneo entero está lleno
+        if (currentPlayers >= TeamSize)
+        {
+            var refreshed = await _tournamentRepository.GetByIdAsync(tournamentId);
+            if (refreshed is { Status: TournamentStatus.Open } &&
+                refreshed.Teams.Count == refreshed.MaxTeams &&
+                refreshed.Teams.All(t => t.Enrollments.Count >= TeamSize))
+            {
+                await _bracketService.GenerateAsync(tournamentId, refreshed.CreatedByUserId);
+            }
+        }
 
         return new EnrollResponseDto
         {
