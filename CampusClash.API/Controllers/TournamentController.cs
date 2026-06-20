@@ -12,11 +12,13 @@ public class TournamentController : ControllerBase
 {
     private readonly ITournamentService _service;
     private readonly IEnrollmentService _enrollmentService;
+    private readonly IBracketService _bracketService;
 
-    public TournamentController(ITournamentService service, IEnrollmentService enrollmentService)
+    public TournamentController(ITournamentService service, IEnrollmentService enrollmentService, IBracketService bracketService)
     {
         _service = service;
         _enrollmentService = enrollmentService;
+        _bracketService = bracketService;
     }
 
     [HttpGet]
@@ -111,6 +113,36 @@ public class TournamentController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("{id:guid}/bracket")]
+    [Authorize]
+    public async Task<IActionResult> GenerateBracket(Guid id)
+    {
+        try
+        {
+            var organizerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _bracketService.GenerateAsync(id, organizerId);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("{id:guid}/bracket")]
+    public async Task<IActionResult> GetBracket(Guid id)
+    {
+        try
+        {
+            var response = await _bracketService.GetAsync(id);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { message = ex.Message });
         }
     }
 }

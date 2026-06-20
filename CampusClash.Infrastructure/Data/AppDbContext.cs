@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<Tournament> Tournaments { get; set; }
     public DbSet<Team> Teams { get; set; }
     public DbSet<Enrollment> Enrollments { get; set; }
+    public DbSet<TournamentMatch> TournamentMatches { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -117,6 +118,31 @@ public class AppDbContext : DbContext
                   .WithMany(t => t.Enrollments)
                   .HasForeignKey(e => e.TeamId);
             entity.HasIndex(e => new { e.UserId, e.TeamId }).IsUnique();
+        });
+
+        modelBuilder.Entity<TournamentMatch>(entity =>
+        {
+            entity.HasKey(m => m.Id);
+            entity.Property(m => m.RoundName).IsRequired().HasMaxLength(50);
+            entity.HasOne(m => m.Tournament)
+                  .WithMany()
+                  .HasForeignKey(m => m.TournamentId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(m => m.TeamA)
+                  .WithMany()
+                  .HasForeignKey(m => m.TeamAId)
+                  .IsRequired(false)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(m => m.TeamB)
+                  .WithMany()
+                  .HasForeignKey(m => m.TeamBId)
+                  .IsRequired(false)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(m => m.Winner)
+                  .WithMany()
+                  .HasForeignKey(m => m.WinnerId)
+                  .IsRequired(false)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
