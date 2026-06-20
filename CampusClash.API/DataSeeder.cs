@@ -10,6 +10,15 @@ public static class DataSeeder
     {
         var hash = BCrypt.Net.BCrypt.HashPassword("Campus123!");
 
+        // ── Asegurar que morena@uade.edu.ar sea organizadora ──────────────────
+        var morenaUser = context.Users.FirstOrDefault(u => u.Email == "morena@uade.edu.ar");
+        if (morenaUser != null && !morenaUser.IsOrganizer)
+        {
+            morenaUser.IsOrganizer = true;
+            context.SaveChanges();
+        }
+        var invOrganizerId = morenaUser?.Id ?? Guid.Parse("a1a1a1a1-0000-0000-0000-000000000001");
+
         // ── IDs fijos ──────────────────────────────────────────────────────────
         var organizerId   = Guid.Parse("a1a1a1a1-0000-0000-0000-000000000001");
         var player1Id     = Guid.Parse("b1b1b1b1-0000-0000-0000-000000000001"); // UBA
@@ -203,7 +212,7 @@ public static class DataSeeder
                 IsInterUniversity = true, MaxTeams = 4,
                 StartDate = new DateTime(2026, 7, 20, 0, 0, 0, DateTimeKind.Utc),
                 EnrollmentDeadline = new DateTime(2026, 7, 10, 0, 0, 0, DateTimeKind.Utc),
-                Status = TournamentStatus.Open, CreatedByUserId = organizerId, CreatedAt = DateTime.UtcNow.AddDays(-10)
+                Status = TournamentStatus.Open, CreatedByUserId = invOrganizerId, CreatedAt = DateTime.UtcNow.AddDays(-10)
             },
         };
 
@@ -211,6 +220,14 @@ public static class DataSeeder
         if (tournamentsToAdd.Count > 0)
         {
             context.Tournaments.AddRange(tournamentsToAdd);
+            context.SaveChanges();
+        }
+
+        // Si el torneo invitacional ya existía con otro organizador, actualizar al de morena
+        var existingInv = context.Tournaments.FirstOrDefault(t => t.Id == invId);
+        if (existingInv != null && existingInv.CreatedByUserId != invOrganizerId)
+        {
+            existingInv.CreatedByUserId = invOrganizerId;
             context.SaveChanges();
         }
 
