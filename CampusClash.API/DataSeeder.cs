@@ -212,7 +212,7 @@ public static class DataSeeder
                 IsInterUniversity = true, MaxTeams = 4,
                 StartDate = new DateTime(2026, 7, 20, 0, 0, 0, DateTimeKind.Utc),
                 EnrollmentDeadline = new DateTime(2026, 7, 10, 0, 0, 0, DateTimeKind.Utc),
-                Status = TournamentStatus.Open, CreatedByUserId = invOrganizerId, CreatedAt = DateTime.UtcNow.AddDays(-10)
+                Status = TournamentStatus.InProgress, CreatedByUserId = invOrganizerId, CreatedAt = DateTime.UtcNow.AddDays(-10)
             },
         };
 
@@ -223,11 +223,13 @@ public static class DataSeeder
             context.SaveChanges();
         }
 
-        // Si el torneo invitacional ya existía con otro organizador, actualizar al de morena
+        // Si el torneo invitacional ya existía, asegurar organizador y status correctos
         var existingInv = context.Tournaments.FirstOrDefault(t => t.Id == invId);
-        if (existingInv != null && existingInv.CreatedByUserId != invOrganizerId)
+        if (existingInv != null &&
+            (existingInv.CreatedByUserId != invOrganizerId || existingInv.Status != TournamentStatus.InProgress))
         {
             existingInv.CreatedByUserId = invOrganizerId;
+            existingInv.Status = TournamentStatus.InProgress;
             context.SaveChanges();
         }
 
@@ -318,6 +320,21 @@ public static class DataSeeder
         if (enrollmentsToAdd.Count > 0)
         {
             context.Enrollments.AddRange(enrollmentsToAdd);
+            context.SaveChanges();
+        }
+
+        // ── Bracket del invitacional (inserta solo si no existe) ─────────────
+        if (!context.TournamentMatches.Any(m => m.TournamentId == invId))
+        {
+            var invMatch1 = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000001");
+            var invMatch2 = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000002");
+            var invMatch3 = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000003");
+
+            context.TournamentMatches.AddRange(
+                new TournamentMatch { Id = invMatch1, TournamentId = invId, Round = 1, RoundName = "Semifinal", MatchNumber = 1, TeamAId = invTeam1, TeamBId = invTeam2 },
+                new TournamentMatch { Id = invMatch2, TournamentId = invId, Round = 1, RoundName = "Semifinal", MatchNumber = 2, TeamAId = invTeam3, TeamBId = invTeam4 },
+                new TournamentMatch { Id = invMatch3, TournamentId = invId, Round = 2, RoundName = "Final",     MatchNumber = 1, TeamAId = null,     TeamBId = null     }
+            );
             context.SaveChanges();
         }
     }
