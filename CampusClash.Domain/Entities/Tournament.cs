@@ -16,6 +16,7 @@ public class Tournament
     public TournamentStatus Status { get; set; }
     public Guid CreatedByUserId { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int? RiotTournamentId { get; set; }
 
     public User CreatedBy { get; set; } = null!;
     public University? University { get; set; }

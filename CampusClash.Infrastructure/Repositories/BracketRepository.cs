@@ -27,6 +27,9 @@ public class BracketRepository : IBracketRepository
             .ThenBy(m => m.MatchNumber)
             .ToListAsync();
 
+    public async Task<TournamentMatch?> GetMatchAsync(Guid matchId)
+        => await _context.TournamentMatches.FindAsync(matchId);
+
     public async Task SaveChangesAsync()
         => await _context.SaveChangesAsync();
 }

@@ -10,6 +10,8 @@ public class TournamentMatch
     public Guid? TeamAId { get; set; }
     public Guid? TeamBId { get; set; }
     public Guid? WinnerId { get; set; }
+    public DateTime? ScheduledAt { get; set; }
+    public string? RiotLobbyCode { get; set; }
 
     public Tournament Tournament { get; set; } = null!;
     public Team? TeamA { get; set; }

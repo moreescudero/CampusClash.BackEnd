@@ -124,6 +124,7 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(m => m.Id);
             entity.Property(m => m.RoundName).IsRequired().HasMaxLength(50);
+            entity.Property(m => m.RiotLobbyCode).HasMaxLength(100);
             entity.HasOne(m => m.Tournament)
                   .WithMany()
                   .HasForeignKey(m => m.TournamentId)

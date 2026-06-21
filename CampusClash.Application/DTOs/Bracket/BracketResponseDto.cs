@@ -23,4 +23,6 @@ public class MatchDto
     public string? TeamBName { get; set; }
     public Guid? WinnerId { get; set; }
     public string? WinnerName { get; set; }
+    public DateTime? ScheduledAt { get; set; }
+    public string? RiotLobbyCode { get; set; }
 }

@@ -9,8 +9,8 @@ public class BracketService : IBracketService
 {
     private readonly ITournamentRepository _tournamentRepository;
     private readonly IBracketRepository _bracketRepository;
+    private readonly IRiotService _riotService;
 
-    // Round names indexed by MaxTeams → ordered from first to last round
     private static readonly Dictionary<int, string[]> RoundNames = new()
     {
         [16] = ["16avos de final", "Cuartos de final", "Semifinal", "Final"],
@@ -19,10 +19,14 @@ public class BracketService : IBracketService
         [2]  = ["Final"],
     };
 
-    public BracketService(ITournamentRepository tournamentRepository, IBracketRepository bracketRepository)
+    public BracketService(
+        ITournamentRepository tournamentRepository,
+        IBracketRepository bracketRepository,
+        IRiotService riotService)
     {
         _tournamentRepository = tournamentRepository;
         _bracketRepository = bracketRepository;
+        _riotService = riotService;
     }
 
     public async Task<BracketResponseDto> GenerateAsync(Guid tournamentId, Guid organizerId)
@@ -97,6 +101,40 @@ public class BracketService : IBracketService
         return BuildResponse(tournamentId, matches, tournament.Teams.ToList());
     }
 
+    public async Task<MatchDto> ScheduleMatchAsync(Guid tournamentId, Guid matchId, Guid organizerId, DateTime scheduledAt)
+    {
+        var tournament = await _tournamentRepository.GetByIdAsync(tournamentId)
+            ?? throw new Exception("Torneo no encontrado.");
+
+        if (tournament.CreatedByUserId != organizerId)
+            throw new Exception("No tenés permiso para modificar este torneo.");
+
+        if (tournament.Status != TournamentStatus.InProgress)
+            throw new Exception("Solo se pueden programar partidos de un torneo en curso.");
+
+        var match = await _bracketRepository.GetMatchAsync(matchId)
+            ?? throw new Exception("Partido no encontrado.");
+
+        if (match.TournamentId != tournamentId)
+            throw new Exception("El partido no pertenece a este torneo.");
+
+        // Crear el torneo en Riot si todavía no tiene ID (una sola vez por torneo)
+        if (tournament.RiotTournamentId is null)
+        {
+            tournament.RiotTournamentId = await _riotService.CreateRiotTournamentAsync(tournament.Name);
+        }
+
+        match.ScheduledAt = scheduledAt;
+        match.RiotLobbyCode = await _riotService.CreateTournamentCodeAsync(
+            tournament.RiotTournamentId.Value,
+            $"Torneo:{tournamentId} Partido:{matchId}");
+
+        await _bracketRepository.SaveChangesAsync();
+
+        var teamMap = tournament.Teams.ToDictionary(t => t.Id, t => t.Name);
+        return ToMatchDto(match, teamMap);
+    }
+
     private static BracketResponseDto BuildResponse(Guid tournamentId, List<TournamentMatch> matches, List<Team> teams)
     {
         var teamMap = teams.ToDictionary(t => t.Id, t => t.Name);
@@ -108,19 +146,25 @@ public class BracketService : IBracketService
             {
                 Round = g.Key,
                 RoundName = g.First().RoundName,
-                Matches = g.OrderBy(m => m.MatchNumber).Select(m => new MatchDto
-                {
-                    Id = m.Id,
-                    MatchNumber = m.MatchNumber,
-                    TeamAId = m.TeamAId,
-                    TeamAName = m.TeamAId.HasValue && teamMap.TryGetValue(m.TeamAId.Value, out var nameA) ? nameA : null,
-                    TeamBId = m.TeamBId,
-                    TeamBName = m.TeamBId.HasValue && teamMap.TryGetValue(m.TeamBId.Value, out var nameB) ? nameB : null,
-                    WinnerId = m.WinnerId,
-                    WinnerName = m.WinnerId.HasValue && teamMap.TryGetValue(m.WinnerId.Value, out var nameW) ? nameW : null,
-                }).ToList()
+                Matches = g.OrderBy(m => m.MatchNumber)
+                           .Select(m => ToMatchDto(m, teamMap))
+                           .ToList()
             }).ToList();
 
         return new BracketResponseDto { TournamentId = tournamentId, Rounds = rounds };
     }
+
+    private static MatchDto ToMatchDto(TournamentMatch m, Dictionary<Guid, string> teamMap) => new()
+    {
+        Id           = m.Id,
+        MatchNumber  = m.MatchNumber,
+        TeamAId      = m.TeamAId,
+        TeamAName    = m.TeamAId.HasValue && teamMap.TryGetValue(m.TeamAId.Value, out var nameA) ? nameA : null,
+        TeamBId      = m.TeamBId,
+        TeamBName    = m.TeamBId.HasValue && teamMap.TryGetValue(m.TeamBId.Value, out var nameB) ? nameB : null,
+        WinnerId     = m.WinnerId,
+        WinnerName   = m.WinnerId.HasValue && teamMap.TryGetValue(m.WinnerId.Value, out var nameW) ? nameW : null,
+        ScheduledAt  = m.ScheduledAt,
+        RiotLobbyCode = m.RiotLobbyCode,
+    };
 }

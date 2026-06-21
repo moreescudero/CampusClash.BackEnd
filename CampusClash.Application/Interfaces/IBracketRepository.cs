@@ -7,5 +7,6 @@ public interface IBracketRepository
     Task<bool> ExistsForTournamentAsync(Guid tournamentId);
     Task AddMatchesAsync(IEnumerable<TournamentMatch> matches);
     Task<List<TournamentMatch>> GetByTournamentAsync(Guid tournamentId);
+    Task<TournamentMatch?> GetMatchAsync(Guid matchId);
     Task SaveChangesAsync();
 }

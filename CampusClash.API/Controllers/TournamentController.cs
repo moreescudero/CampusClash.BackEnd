@@ -1,3 +1,4 @@
+using CampusClash.Application.DTOs.Bracket;
 using CampusClash.Application.DTOs.Tournament;
 using CampusClash.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -143,6 +144,22 @@ public class TournamentController : ControllerBase
         catch (Exception ex)
         {
             return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpPatch("{id:guid}/matches/{matchId:guid}/schedule")]
+    [Authorize]
+    public async Task<IActionResult> ScheduleMatch(Guid id, Guid matchId, [FromBody] ScheduleMatchDto dto)
+    {
+        try
+        {
+            var organizerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _bracketService.ScheduleMatchAsync(id, matchId, organizerId, dto.ScheduledAt);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 }
