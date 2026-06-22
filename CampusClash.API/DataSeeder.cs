@@ -381,7 +381,7 @@ public static class DataSeeder
         var match1 = context.TournamentMatches.FirstOrDefault(m => m.Id == invMatch1Id);
         if (match1 != null)
         {
-            // Semi 1 — Domingo 22/6 22:00 BA (= 23/6 01:00 UTC)
+            // Semi 1 — Lunes 22/6 22:00 BA (= 23/6 01:00 UTC)
             match1.ScheduledAt   = new DateTime(2026, 6, 23, 1, 0, 0, DateTimeKind.Utc);
             match1.RiotLobbyCode = "LAS-STUB-CAMPUS-TEST-001";
         }

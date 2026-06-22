@@ -59,11 +59,32 @@ check_deps() {
   ok "ngrok autenticado"
 }
 
+# ─── Posibles ubicaciones del lockfile de League (Mac) ──────────────────────
+LOCKFILE_PATHS=(
+  "$HOME/Library/Application Support/Riot Games/League of Legends/lockfile"
+  "/Applications/League of Legends.app/Contents/LoL/lockfile"
+  "$HOME/Applications/League of Legends.app/Contents/LoL/lockfile"
+)
+
+find_lockfile() {
+  for path in "${LOCKFILE_PATHS[@]}"; do
+    [ -f "$path" ] && echo "$path" && return
+  done
+}
+
 # ─── Esperar que League esté corriendo ──────────────────────────────────────
 wait_for_league() {
   info "Esperando que League of Legends esté corriendo..."
   local dots=0
   while true; do
+    # Primero intentar lockfile (más confiable)
+    local lf
+    lf=$(find_lockfile)
+    if [ -n "$lf" ]; then
+      LOCKFILE="$lf"
+      break
+    fi
+    # Fallback: ps aux
     LCU_ARGS=$(ps aux | grep LeagueClientUx | grep -v grep | head -1)
     [ -n "$LCU_ARGS" ] && break
     printf "."
@@ -77,11 +98,23 @@ wait_for_league() {
 
 # ─── Extraer puerto y token ──────────────────────────────────────────────────
 extract_lcu_credentials() {
-  LCU_PORT=$(echo "$LCU_ARGS" | grep -o '\-\-app-port=[0-9]*' | cut -d= -f2)
-  LCU_TOKEN=$(echo "$LCU_ARGS" | grep -o '\-\-remoting-auth-token=[^ ]*' | cut -d= -f2)
+  # Método 1: lockfile  →  formato: LeagueClient:PID:PORT:TOKEN:https
+  if [ -n "$LOCKFILE" ] && [ -f "$LOCKFILE" ]; then
+    local content
+    content=$(cat "$LOCKFILE")
+    LCU_PORT=$(echo "$content"  | cut -d: -f3)
+    LCU_TOKEN=$(echo "$content" | cut -d: -f4)
+  fi
 
-  [ -z "$LCU_PORT" ]  && fail "No se pudo extraer el puerto de LeagueClientUx."
-  [ -z "$LCU_TOKEN" ] && fail "No se pudo extraer el auth token de LeagueClientUx."
+  # Método 2: ps aux (fallback)
+  if [ -z "$LCU_PORT" ] || [ -z "$LCU_TOKEN" ]; then
+    LCU_ARGS=$(ps aux | grep LeagueClientUx | grep -v grep | head -1)
+    LCU_PORT=$(echo  "$LCU_ARGS" | grep -o '\-\-app-port=[0-9]*'            | cut -d= -f2)
+    LCU_TOKEN=$(echo "$LCU_ARGS" | grep -o '\-\-remoting-auth-token=[^ ]*'  | cut -d= -f2)
+  fi
+
+  [ -z "$LCU_PORT" ]  && fail "No se pudo extraer el puerto de League. ¿Está completamente cargado el cliente?"
+  [ -z "$LCU_TOKEN" ] && fail "No se pudo extraer el auth token de League. ¿Está completamente cargado el cliente?"
 
   ok "Puerto LCU: ${LCU_PORT}"
   ok "Token LCU extraído"
