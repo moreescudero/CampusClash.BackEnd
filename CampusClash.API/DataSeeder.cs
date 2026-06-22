@@ -324,17 +324,64 @@ public static class DataSeeder
         }
 
         // ── Bracket del invitacional (inserta solo si no existe) ─────────────
+        var invMatch1Id = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000001");
+        var invMatch2Id = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000002");
+        var invMatch3Id = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000003");
+
         if (!context.TournamentMatches.Any(m => m.TournamentId == invId))
         {
-            var invMatch1 = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000001");
-            var invMatch2 = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000002");
-            var invMatch3 = Guid.Parse("5e5e5e5e-0000-0000-0000-000000000003");
-
             context.TournamentMatches.AddRange(
-                new TournamentMatch { Id = invMatch1, TournamentId = invId, Round = 1, RoundName = "Semifinal", MatchNumber = 1, TeamAId = invTeam1, TeamBId = invTeam2 },
-                new TournamentMatch { Id = invMatch2, TournamentId = invId, Round = 1, RoundName = "Semifinal", MatchNumber = 2, TeamAId = invTeam3, TeamBId = invTeam4 },
-                new TournamentMatch { Id = invMatch3, TournamentId = invId, Round = 2, RoundName = "Final",     MatchNumber = 1, TeamAId = null,     TeamBId = null     }
+                new TournamentMatch { Id = invMatch1Id, TournamentId = invId, Round = 1, RoundName = "Semifinal", MatchNumber = 1, TeamAId = invTeam1, TeamBId = invTeam2 },
+                new TournamentMatch { Id = invMatch2Id, TournamentId = invId, Round = 1, RoundName = "Semifinal", MatchNumber = 2, TeamAId = invTeam3, TeamBId = invTeam4 },
+                new TournamentMatch { Id = invMatch3Id, TournamentId = invId, Round = 2, RoundName = "Final",     MatchNumber = 1, TeamAId = null,     TeamBId = null     }
             );
+            context.SaveChanges();
+        }
+
+        // ── Morena en invTeam1 (reemplaza ip05 para no superar 5 jugadores) ──
+        if (morenaUser != null)
+        {
+            // Validación aprobada si no tiene
+            if (!context.ValidationRequests.Any(v => v.UserId == morenaUser.Id))
+            {
+                context.ValidationRequests.Add(new ValidationRequest
+                {
+                    Id = Guid.NewGuid(), UserId = morenaUser.Id, UserEmail = morenaUser.Email,
+                    UniversityId = 10, Legajo = "UADE-MORENA", Faculty = "Ingeniería",
+                    Career = "Ingeniería en Sistemas", Year = 3,
+                    CertificateUrl = "/uploads/seed/morena_cert.pdf",
+                    Status = ValidationStatus.Approved,
+                    CreatedAt = DateTime.UtcNow.AddDays(-10), ReviewedAt = DateTime.UtcNow.AddDays(-9)
+                });
+                context.SaveChanges();
+            }
+
+            var morenaInTournament = context.Enrollments
+                .Any(e => e.UserId == morenaUser.Id && e.Team.TournamentId == invId);
+
+            if (!morenaInTournament)
+            {
+                // Sacar ip05 de invTeam1 para hacer lugar
+                var ip05Enrollment = context.Enrollments
+                    .FirstOrDefault(e => e.UserId == ip05 && e.TeamId == invTeam1);
+                if (ip05Enrollment != null)
+                    context.Enrollments.Remove(ip05Enrollment);
+
+                context.Enrollments.Add(new Enrollment
+                {
+                    Id = Guid.NewGuid(), UserId = morenaUser.Id,
+                    TeamId = invTeam1, EnrolledAt = DateTime.UtcNow.AddDays(-5)
+                });
+                context.SaveChanges();
+            }
+        }
+
+        // ── Schedular match 1 del invitacional (UBA Alpha vs UADE Phoenix) ────
+        var match1 = context.TournamentMatches.FirstOrDefault(m => m.Id == invMatch1Id);
+        if (match1 != null && match1.ScheduledAt == null)
+        {
+            match1.ScheduledAt  = new DateTime(2026, 6, 22, 22, 0, 0, DateTimeKind.Utc);
+            match1.RiotLobbyCode = "LAS-STUB-CAMPUS-TEST-001";
             context.SaveChanges();
         }
     }
