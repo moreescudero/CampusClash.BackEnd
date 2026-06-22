@@ -379,10 +379,10 @@ public static class DataSeeder
         // ── ScheduledAt del invitacional (todos los partidos) ────────────────
         // BA = UTC-3 | rango permitido 10:00-20:00 BA = 13:00-23:00 UTC
         var match1 = context.TournamentMatches.FirstOrDefault(m => m.Id == invMatch1Id);
-        if (match1 != null && match1.ScheduledAt == null)
+        if (match1 != null)
         {
-            // Semi 1 — Domingo 22/6 19:00 BA
-            match1.ScheduledAt   = new DateTime(2026, 6, 22, 22, 0, 0, DateTimeKind.Utc);
+            // Semi 1 — Domingo 22/6 22:00 BA (= 23/6 01:00 UTC)
+            match1.ScheduledAt   = new DateTime(2026, 6, 23, 1, 0, 0, DateTimeKind.Utc);
             match1.RiotLobbyCode = "LAS-STUB-CAMPUS-TEST-001";
         }
 
