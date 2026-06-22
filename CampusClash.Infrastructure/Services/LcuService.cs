@@ -31,6 +31,7 @@ public class LcuService : ILcuService
             existing.BaseUrl = baseUrl.TrimEnd('/');
             existing.AuthToken = authToken;
             existing.CreatedAt = DateTime.UtcNow;
+            existing.LobbyCreated = false;
         }
         else
         {
@@ -58,17 +59,16 @@ public class LcuService : ILcuService
                 configuration = new
                 {
                     gameMode = "CLASSIC",
+                    gameMutator = "",
                     mapId = 11,
-                    teamSize = 5,
+                    mutators = new { id = 1 },
                     spectatorPolicy = "AllAllowed",
-                    pickType = "",
-                    customMutatorName = "SimulPickStrategy"
+                    teamSize = 5
                 },
                 lobbyName = $"CampusClash - Match {matchId}",
                 lobbyPassword = ""
             },
-            isCustom = true,
-            queueId = 3100
+            isCustom = true
         };
 
         var response = await client.PostAsJsonAsync($"{session.BaseUrl}/lol-lobby/v2/lobby", body);
