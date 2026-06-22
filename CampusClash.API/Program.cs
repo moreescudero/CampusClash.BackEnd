@@ -37,6 +37,7 @@ builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IBracketService, BracketService>();
 builder.Services.AddScoped<ILcuService, LcuService>();
+builder.Services.AddHostedService<LobbyAutoCreateService>();
 builder.Services.AddInfrastructureEmail(builder.Configuration);
 builder.Services.AddScoped<RiotLinkService>();
 builder.Services.AddHttpClient<IRiotService, RiotService>();
