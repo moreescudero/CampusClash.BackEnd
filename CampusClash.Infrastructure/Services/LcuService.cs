@@ -59,16 +59,17 @@ public class LcuService : ILcuService
                 configuration = new
                 {
                     gameMode = "CLASSIC",
-                    gameMutator = "",
                     mapId = 11,
-                    mutators = new { id = 1 },
+                    teamSize = 5,
                     spectatorPolicy = "AllAllowed",
-                    teamSize = 5
+                    pickType = "",
+                    customMutatorName = "SimulPickStrategy"
                 },
                 lobbyName = $"CampusClash - Match {matchId}",
                 lobbyPassword = ""
             },
-            isCustom = true
+            isCustom = true,
+            queueId = 3100
         };
 
         var response = await client.PostAsJsonAsync($"{session.BaseUrl}/lol-lobby/v2/lobby", body);
