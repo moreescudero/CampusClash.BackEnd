@@ -376,13 +376,30 @@ public static class DataSeeder
             }
         }
 
-        // ── Schedular match 1 del invitacional (UBA Alpha vs UADE Phoenix) ────
+        // ── ScheduledAt del invitacional (todos los partidos) ────────────────
+        // BA = UTC-3 | rango permitido 10:00-20:00 BA = 13:00-23:00 UTC
         var match1 = context.TournamentMatches.FirstOrDefault(m => m.Id == invMatch1Id);
         if (match1 != null && match1.ScheduledAt == null)
         {
-            match1.ScheduledAt  = new DateTime(2026, 6, 22, 22, 0, 0, DateTimeKind.Utc);
+            // Semi 1 — Domingo 22/6 19:00 BA
+            match1.ScheduledAt   = new DateTime(2026, 6, 22, 22, 0, 0, DateTimeKind.Utc);
             match1.RiotLobbyCode = "LAS-STUB-CAMPUS-TEST-001";
-            context.SaveChanges();
         }
+
+        var match2 = context.TournamentMatches.FirstOrDefault(m => m.Id == invMatch2Id);
+        if (match2 != null && match2.ScheduledAt == null)
+        {
+            // Semi 2 — Lunes 23/6 16:00 BA
+            match2.ScheduledAt = new DateTime(2026, 6, 23, 19, 0, 0, DateTimeKind.Utc);
+        }
+
+        var match3 = context.TournamentMatches.FirstOrDefault(m => m.Id == invMatch3Id);
+        if (match3 != null && match3.ScheduledAt == null)
+        {
+            // Final — Miércoles 25/6 18:00 BA
+            match3.ScheduledAt = new DateTime(2026, 6, 25, 21, 0, 0, DateTimeKind.Utc);
+        }
+
+        context.SaveChanges();
     }
 }
