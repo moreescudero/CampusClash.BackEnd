@@ -178,32 +178,18 @@ register_session() {
 print_summary() {
   echo ""
   echo -e "${GREEN}${BOLD}  ══════════════════════════════════════════${NC}"
-  echo -e "${GREEN}${BOLD}    ¡Todo listo! Próximos pasos:${NC}"
+  echo -e "${GREEN}${BOLD}    ¡Todo listo!${NC}"
   echo -e "${GREEN}${BOLD}  ══════════════════════════════════════════${NC}"
   echo ""
-  echo -e "  ${CYAN}1. Crear el lobby en League:${NC}"
-  echo -e "     POST ${API_URL}/api/matches/${MATCH_ID}/create-lobby"
+  echo -e "  ${CYAN}Estado del lobby (para el frontend):${NC}"
+  echo -e "  GET ${API_URL}/api/matches/${MATCH_ID}/lobby-status"
   echo ""
-  echo -e "  ${CYAN}2. Invitar jugadores:${NC}"
-  echo -e "     POST ${API_URL}/api/matches/${MATCH_ID}/invite"
-  echo -e "     Body: { \"summonerNames\": [\"jugador1\", \"jugador2\", ...] }"
-  echo ""
-  echo -e "  ${CYAN}3. Ver quién se unió al lobby:${NC}"
-  echo -e "     GET  ${API_URL}/api/matches/${MATCH_ID}/lobby-status"
-  echo ""
-  echo -e "${YELLOW}  ngrok corriendo (PID: ${NGROK_PID}). No cierres esta terminal.${NC}"
-  echo -e "${YELLOW}  Para cerrar ngrok cuando termines: ${RED}pkill -f ngrok${NC}"
-  echo ""
-  echo -e "  ${CYAN}Log de ngrok:${NC} /tmp/campusclash-ngrok.log"
+  echo -e "${YELLOW}  No cierres esta terminal — ngrok (PID: ${NGROK_PID}) debe seguir corriendo.${NC}"
   echo ""
 }
 
-# ─── Crear lobby directo desde la LCU local ──────────────────────────────────
+# ─── Crear lobby + invitar (todo directo desde la LCU local) ─────────────────
 create_lobby_local() {
-  echo ""
-  read -p "  ¿Crear el lobby en League ahora? [s/N]: " CREAR
-  [[ ! "$CREAR" =~ ^[sS]$ ]] && return
-
   cat > /tmp/lcu-lobby-body.json << EOF
 {
   "customGameLobby": {
@@ -233,26 +219,19 @@ EOF
 
   if [ "$LOBBY_RESP" = "200" ]; then
     ok "¡Lobby creado! Aparece en tu cliente de League."
-
-    # Notificar al backend
     curl -s -L -X POST "${API_URL}/api/matches/${MATCH_ID}/lobby-created" \
       -H "Authorization: Bearer ${JWT_TOKEN}" > /dev/null
-
     invite_players_local
   else
     echo -e "${RED}  Error creando lobby (HTTP ${LOBBY_RESP}):${NC}"
-    cat /tmp/lcu-lobby-resp.json
-    echo ""
+    cat /tmp/lcu-lobby-resp.json && echo ""
   fi
 }
 
 # ─── Invitar jugadores directo desde la LCU local ────────────────────────────
 invite_players_local() {
   echo ""
-  read -p "  ¿Invitar jugadores ahora? [s/N]: " INVITAR
-  [[ ! "$INVITAR" =~ ^[sS]$ ]] && return
-
-  read -p "  Nombres de invocador separados por coma: " NAMES_RAW
+  read -p "  Nombres de invocador a invitar (separados por coma): " NAMES_RAW
   IFS=',' read -ra NAMES <<< "$NAMES_RAW"
 
   local INVITATIONS="["
