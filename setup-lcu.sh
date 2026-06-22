@@ -95,6 +95,7 @@ start_ngrok() {
 
   info "Iniciando ngrok en puerto ${LCU_PORT}..."
   ngrok http "https://127.0.0.1:${LCU_PORT}" \
+    --host-header="127.0.0.1:${LCU_PORT}" \
     --log=stdout > /tmp/campusclash-ngrok.log 2>&1 &
   NGROK_PID=$!
 
