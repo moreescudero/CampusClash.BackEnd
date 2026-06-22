@@ -27,6 +27,7 @@ builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 builder.Services.AddScoped<IBracketRepository, BracketRepository>();
+builder.Services.AddScoped<ILcuRepository, LcuRepository>();
 
 // Servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -35,9 +36,18 @@ builder.Services.AddScoped<IOrganizerRequestService, OrganizerRequestService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IBracketService, BracketService>();
+builder.Services.AddScoped<ILcuService, LcuService>();
 builder.Services.AddInfrastructureEmail(builder.Configuration);
 builder.Services.AddScoped<RiotLinkService>();
 builder.Services.AddHttpClient<IRiotService, RiotService>();
+
+// Cliente HTTP para LCU: ignora el certificado self-signed del cliente de League
+builder.Services.AddHttpClient("lcu")
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback =
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    });
 
 // Filtro de admin
 builder.Services.AddScoped<AdminApiKeyFilter>();

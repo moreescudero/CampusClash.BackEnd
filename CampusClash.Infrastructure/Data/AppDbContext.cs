@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Team> Teams { get; set; }
     public DbSet<Enrollment> Enrollments { get; set; }
     public DbSet<TournamentMatch> TournamentMatches { get; set; }
+    public DbSet<LcuSession> LcuSessions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -118,6 +119,18 @@ public class AppDbContext : DbContext
                   .WithMany(t => t.Enrollments)
                   .HasForeignKey(e => e.TeamId);
             entity.HasIndex(e => new { e.UserId, e.TeamId }).IsUnique();
+        });
+
+        modelBuilder.Entity<LcuSession>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.BaseUrl).IsRequired().HasMaxLength(255);
+            entity.Property(s => s.AuthToken).IsRequired().HasMaxLength(255);
+            entity.HasOne(s => s.Match)
+                  .WithMany()
+                  .HasForeignKey(s => s.MatchId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(s => s.MatchId).IsUnique();
         });
 
         modelBuilder.Entity<TournamentMatch>(entity =>
