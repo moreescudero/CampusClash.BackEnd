@@ -6,4 +6,5 @@ public interface ILcuService
     Task CreateLobbyAsync(Guid matchId);
     Task InvitePlayersAsync(Guid matchId, List<string> summonerNames);
     Task<string> GetLobbyStatusAsync(Guid matchId);
+    Task MarkLobbyCreatedAsync(Guid matchId);
 }

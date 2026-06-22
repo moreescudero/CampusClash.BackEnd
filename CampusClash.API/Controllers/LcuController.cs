@@ -91,4 +91,22 @@ public class LcuController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    /// <summary>
+    /// El script del host llama a este endpoint después de crear el lobby directamente desde la LCU local.
+    /// </summary>
+    [HttpPost("matches/{matchId:guid}/lobby-created")]
+    [Authorize]
+    public async Task<IActionResult> MarkLobbyCreated(Guid matchId)
+    {
+        try
+        {
+            await _lcuService.MarkLobbyCreatedAsync(matchId);
+            return Ok(new { message = "Lobby marcado como creado." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

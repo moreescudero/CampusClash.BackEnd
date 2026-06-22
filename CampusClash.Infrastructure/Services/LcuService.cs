@@ -133,6 +133,13 @@ public class LcuService : ILcuService
         return await res.Content.ReadAsStringAsync();
     }
 
+    public async Task MarkLobbyCreatedAsync(Guid matchId)
+    {
+        var session = await GetSessionOrThrow(matchId);
+        session.LobbyCreated = true;
+        await _lcuRepository.SaveChangesAsync();
+    }
+
     private async Task<LcuSession> GetSessionOrThrow(Guid matchId)
         => await _lcuRepository.GetByMatchIdAsync(matchId)
            ?? throw new Exception("No hay sesión LCU registrada para este partido. Ejecutá POST /api/lcu/register primero.");

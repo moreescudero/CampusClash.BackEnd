@@ -198,6 +198,108 @@ print_summary() {
   echo ""
 }
 
+# ─── Crear lobby directo desde la LCU local ──────────────────────────────────
+create_lobby_local() {
+  echo ""
+  read -p "  ¿Crear el lobby en League ahora? [s/N]: " CREAR
+  [[ ! "$CREAR" =~ ^[sS]$ ]] && return
+
+  cat > /tmp/lcu-lobby-body.json << EOF
+{
+  "customGameLobby": {
+    "configuration": {
+      "gameMode": "CLASSIC",
+      "mapId": 11,
+      "teamSize": 5,
+      "spectatorPolicy": "AllAllowed",
+      "pickType": "",
+      "customMutatorName": "SimulPickStrategy"
+    },
+    "lobbyName": "CampusClash - Match ${MATCH_ID}",
+    "lobbyPassword": ""
+  },
+  "isCustom": true,
+  "queueId": 3100
+}
+EOF
+
+  info "Creando lobby en League of Legends..."
+  LOBBY_RESP=$(curl -k -s -o /tmp/lcu-lobby-resp.json -w "%{http_code}" \
+    -u "riot:${LCU_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -H "Accept: application/json" \
+    -X POST "https://127.0.0.1:${LCU_PORT}/lol-lobby/v2/lobby" \
+    -d @/tmp/lcu-lobby-body.json)
+
+  if [ "$LOBBY_RESP" = "200" ]; then
+    ok "¡Lobby creado! Aparece en tu cliente de League."
+
+    # Notificar al backend
+    curl -s -L -X POST "${API_URL}/api/matches/${MATCH_ID}/lobby-created" \
+      -H "Authorization: Bearer ${JWT_TOKEN}" > /dev/null
+
+    invite_players_local
+  else
+    echo -e "${RED}  Error creando lobby (HTTP ${LOBBY_RESP}):${NC}"
+    cat /tmp/lcu-lobby-resp.json
+    echo ""
+  fi
+}
+
+# ─── Invitar jugadores directo desde la LCU local ────────────────────────────
+invite_players_local() {
+  echo ""
+  read -p "  ¿Invitar jugadores ahora? [s/N]: " INVITAR
+  [[ ! "$INVITAR" =~ ^[sS]$ ]] && return
+
+  read -p "  Nombres de invocador separados por coma: " NAMES_RAW
+  IFS=',' read -ra NAMES <<< "$NAMES_RAW"
+
+  local INVITATIONS="["
+  local FIRST=true
+
+  for NAME in "${NAMES[@]}"; do
+    NAME=$(echo "$NAME" | xargs)  # trim spaces
+    ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${NAME}'))" 2>/dev/null || \
+              node -e "process.stdout.write(encodeURIComponent('${NAME}'))" 2>/dev/null || \
+              echo "$NAME")
+
+    SUMMONER_RESP=$(curl -k -s \
+      -u "riot:${LCU_TOKEN}" \
+      -H "Accept: application/json" \
+      "https://127.0.0.1:${LCU_PORT}/lol-summoner/v1/summoners?name=${ENCODED}")
+
+    SUMMONER_ID=$(echo "$SUMMONER_RESP" | jq -r '.summonerId // empty' 2>/dev/null)
+
+    if [ -n "$SUMMONER_ID" ]; then
+      ok "Invocador encontrado: ${NAME} (ID: ${SUMMONER_ID})"
+      $FIRST || INVITATIONS+=","
+      INVITATIONS+="{\"toSummonerId\":${SUMMONER_ID}}"
+      FIRST=false
+    else
+      warn "No se encontró el invocador: ${NAME}"
+    fi
+  done
+
+  INVITATIONS+="]"
+
+  if [ "$INVITATIONS" = "[]" ]; then
+    warn "No se encontró ningún invocador válido."
+    return
+  fi
+
+  info "Enviando invitaciones..."
+  echo "$INVITATIONS" > /tmp/lcu-invites.json
+  INV_RESP=$(curl -k -s -o /tmp/lcu-inv-resp.json -w "%{http_code}" \
+    -u "riot:${LCU_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -X POST "https://127.0.0.1:${LCU_PORT}/lol-lobby/v2/lobby/invitations" \
+    -d @/tmp/lcu-invites.json)
+
+  [ "$INV_RESP" = "200" ] && ok "¡Invitaciones enviadas!" || \
+    warn "Error enviando invitaciones (HTTP ${INV_RESP})"
+}
+
 # ─── Main ────────────────────────────────────────────────────────────────────
 header
 check_deps
@@ -207,6 +309,7 @@ start_ngrok
 login
 prompt_match_id
 register_session
+create_lobby_local
 print_summary
 
 # Mantener ngrok vivo hasta que se apriete Ctrl+C
