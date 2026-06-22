@@ -215,7 +215,7 @@ create_lobby_local() {
       "pickType": "",
       "customMutatorName": "SimulPickStrategy"
     },
-    "lobbyName": "CampusClash - Match ${MATCH_ID}",
+    "lobbyName": "CampusClash",
     "lobbyPassword": ""
   },
   "isCustom": true,

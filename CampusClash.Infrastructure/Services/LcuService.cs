@@ -65,7 +65,7 @@ public class LcuService : ILcuService
                     pickType = "",
                     customMutatorName = "SimulPickStrategy"
                 },
-                lobbyName = $"CampusClash - Match {matchId}",
+                lobbyName = "CampusClash",
                 lobbyPassword = ""
             },
             isCustom = true,
